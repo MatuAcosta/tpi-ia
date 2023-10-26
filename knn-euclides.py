@@ -48,15 +48,16 @@ class KNN:
         k_indices = np.argsort(distancias)[:self.k]
         # Extraemos las clases o etiquetas de las k muestras de entrenamiento del vecino más cercano
         k_nearest_labels = [self.clase.iloc[i] for i in k_indices]
-        print((k_nearest_labels))
-        # Devuelve la etiqueta de clase más común
-        # most_common = Counter(k_nearest_labels).most_common(1)
-        # #print('La etiqueta mas común es', most_common[0][0])
+        #print((k_nearest_labels))
+        #Devuelve la etiqueta de clase más común
+        most_common = Counter(k_nearest_labels).most_common(1)
+        #print('La etiqueta mas común es', most_common[0][0])
         # return most_common[0][0]
         count_yes = 0
         count_no = 0
         for i in range(self.k):
-            value_label = k_nearest_labels[i] == self.clase.iloc[k_indices[i]]
+            value_label = k_nearest_labels[i] == most_common[0][0]
+            #print('condicion always true?', value_label)
             if(value_label and k_nearest_labels[i] == 1 ): 
                 count_yes += 1
             elif (value_label and k_nearest_labels[i] == 0):
@@ -77,14 +78,15 @@ class KNN:
         k_indices = np.argsort(distancias)[:self.k]
         #print('DISTANCIAS', k_indices)
         k_nearest_labels = [self.clase.iloc[i] for i in k_indices]
-        #print('MAS CERCANO',self.atributos.iloc[k_indices[0]])
+       #print('MAS CERCANO',self.atributos.iloc[k_indices[0]])
         # Calcular los pesos ponderados para las etiquetas (cuadrado del inverso de la distancia)
         weighted_labels = [1 / (distancias[i] ** 2) for i in k_indices]
+        most_common = Counter(k_nearest_labels).most_common(1)
         #print('WEIGHTED', weighted_labels)
         count_yes = 0
         count_no = 0
         for i in range(self.k):
-            value_label = k_nearest_labels[i] == self.clase.iloc[k_indices[i]]
+            value_label = k_nearest_labels[i] == most_common[0][0]
             if(value_label and k_nearest_labels[i] == 1 ): 
                 count_yes += weighted_labels[i]
             elif (value_label and k_nearest_labels[i] == 0):
@@ -120,10 +122,14 @@ to_csv([train_dataset, test_dataset, labels_train, labels_test],['training_datas
 
 train_dataset = normalize_dataset(train_dataset)
 test_dataset = normalize_dataset(test_dataset)
+
+to_csv([train_dataset,test_dataset],['training_dataset_scaled.csv','test_dataset_scaled.csv'])
+
+
 def ejecutarKNN(train_dataset, labels_train,test_dataset,labels_test):
     accuracy_ponderado=[]
     accuracy = []
-    for k in range(1,5):
+    for k in range(1,8):
         knn = KNN(k)
         knn.fit(train_dataset,labels_train)
         predictions_ponderado = knn.predecir_ponderado(test_dataset)
@@ -135,21 +141,21 @@ def ejecutarKNN(train_dataset, labels_train,test_dataset,labels_test):
     print('NORMAL',accuracy)
     print('PONDERADO',accuracy_ponderado)
 
-def ejecutarKNN_simple():
-     for k in range(1,10):
+def ejecutarKNN_simple(train_dataset, labels_train,test_dataset,labels_test):
+     for k in range(5,10):
         knn = KNN(k)
         knn.fit(train_dataset,labels_train)
         new_data = {
-            'age':[50],
+            'age':[70],
             'education':[1],
             'sex':[0],
             'is_smoking':[1],
-            'cigsPerDay':[50],
+            'cigsPerDay':[5],
             'BPMeds':[1],
             'prevalentStroke':[1],
-            'prevalentHyp':[1],
+            'prevalentHyp':[0],
             'diabetes':[1],
-            'totChol': [295.0],
+            'totChol': [280.0],
             'sysBP': [102.0],
             'diaBP': [68.0],
             'BMI': [28.15],
@@ -159,10 +165,11 @@ def ejecutarKNN_simple():
         new_df = pd.DataFrame(new_data)
         prediction_normal = knn.predecir(new_df)
         prediction_ponderado = knn.predecir_ponderado(new_df)
-        print('PREDICCION para k= ',k, prediction_ponderado)
-        print('PREDICCION para k= ',k, prediction_normal)
+        print('PREDICCION para kponderadoS= ',k, prediction_ponderado)
+        print('PREDICCION para k normal= ',k, prediction_normal)
 
 ejecutarKNN(train_dataset=train_dataset,labels_train=labels_train,test_dataset=test_dataset,labels_test=labels_test,)
+#ejecutarKNN_simple(train_dataset=train_dataset,labels_train=labels_train,test_dataset=test_dataset,labels_test=labels_test,)
 
 
 
