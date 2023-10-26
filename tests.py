@@ -75,3 +75,14 @@ plt.show()
 
 
 
+    # def distancia_gower(self, punto1, punto2):
+    #   n = len(punto1)
+    #   cont_indices = [i for i in range(n) if isinstance(punto1[i], (int, float))]
+    #   cat_indices = [i for i in range(n) if i not in cont_indices]
+    #   cont_x = np.array([punto1[i] for i in cont_indices])
+    #   cont_y = np.array([punto2[i] for i in cont_indices])
+    #   cat_x = np.array([punto1[i] for i in cat_indices])
+    #   cat_y = np.array([punto2[i] for i in cat_indices])
+    #   cont_dist = cdist(cont_x.reshape(1, -1), cont_y.reshape(1, -1), metric='euclidean')[0][0]
+    #   cat_dist = np.sum(cat_x != cat_y) / len(cat_indices)
+    #   return (cont_dist + cat_dist) / (len(cont_indices) + len(cat_indices))
