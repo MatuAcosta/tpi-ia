@@ -78,6 +78,9 @@ class KNN:
         k_indices = np.argsort(distancias)[:self.k]
         #print('DISTANCIAS', k_indices)
         k_nearest_labels = [self.clase.iloc[i] for i in k_indices]
+        for i in k_indices:
+            print('MAS CERCANOS',self.atributos.iloc[i])
+        
        #print('MAS CERCANO',self.atributos.iloc[k_indices[0]])
         # Calcular los pesos ponderados para las etiquetas (cuadrado del inverso de la distancia)
         weighted_labels = [1 / (distancias[i] ** 2) for i in k_indices]
@@ -109,7 +112,7 @@ def div_dataset(dataset, drop_columns):
     return train_dataset,test_dataset,labels_train,labels_test
 
 def normalize_dataset(dataset):
-    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaler = MinMaxScaler(feature_range=(-1, 1))
     dataset_scaled = scaler.fit_transform(dataset)
     return pd.DataFrame(dataset_scaled)
 
@@ -120,8 +123,8 @@ dataset['is_smoking'] = dataset['is_smoking'].replace({'YES': 1, 'NO':0})
 train_dataset, test_dataset, labels_train, labels_test = div_dataset(dataset, ['id','TenYearCHD'])
 to_csv([train_dataset, test_dataset, labels_train, labels_test],['training_dataset.csv','test_dataset.csv','labels_train.csv','labels_test.csv'])
 
-train_dataset = normalize_dataset(train_dataset)
-test_dataset = normalize_dataset(test_dataset)
+#train_dataset = normalize_dataset(train_dataset)
+#test_dataset = normalize_dataset(test_dataset)
 
 to_csv([train_dataset,test_dataset],['training_dataset_scaled.csv','test_dataset_scaled.csv'])
 
@@ -142,7 +145,7 @@ def ejecutarKNN(train_dataset, labels_train,test_dataset,labels_test):
     print('PONDERADO',accuracy_ponderado)
 
 def ejecutarKNN_simple(train_dataset, labels_train,test_dataset,labels_test):
-     for k in range(5,10):
+     for k in range(5,6):
         knn = KNN(k)
         knn.fit(train_dataset,labels_train)
         new_data = {
@@ -153,23 +156,25 @@ def ejecutarKNN_simple(train_dataset, labels_train,test_dataset,labels_test):
             'cigsPerDay':[5],
             'BPMeds':[1],
             'prevalentStroke':[1],
-            'prevalentHyp':[0],
+            'prevalentHyp':[2],
             'diabetes':[1],
             'totChol': [280.0],
             'sysBP': [102.0],
             'diaBP': [68.0],
             'BMI': [28.15],
             'heartRate': [60.0],
-            'glucose': [80.0]
+            'glucose': [120.0]
         }
+        #new_df = normalize_dataset( pd.DataFrame(new_data))
         new_df = pd.DataFrame(new_data)
+        print('NEW_DF',new_df)
         prediction_normal = knn.predecir(new_df)
         prediction_ponderado = knn.predecir_ponderado(new_df)
         print('PREDICCION para kponderadoS= ',k, prediction_ponderado)
         print('PREDICCION para k normal= ',k, prediction_normal)
 
-ejecutarKNN(train_dataset=train_dataset,labels_train=labels_train,test_dataset=test_dataset,labels_test=labels_test,)
-#ejecutarKNN_simple(train_dataset=train_dataset,labels_train=labels_train,test_dataset=test_dataset,labels_test=labels_test,)
+#ejecutarKNN(train_dataset=train_dataset,labels_train=labels_train,test_dataset=test_dataset,labels_test=labels_test,)
+ejecutarKNN_simple(train_dataset=train_dataset,labels_train=labels_train,test_dataset=test_dataset,labels_test=labels_test,)
 
 
 
