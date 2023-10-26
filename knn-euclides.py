@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from knn import KNN
 from sklearn.neighbors import KNeighborsClassifier
+import matplotlib.pyplot as plt
 
 def to_csv(datasets, names):
     i = 0
@@ -31,9 +32,13 @@ def ejecutarKNN(train_dataset, labels_train,test_dataset,labels_test):
         knn.fit(train_dataset,labels_train)
         predictions_ponderado = knn.predecir_ponderado(test_dataset)
         predictions = knn.predecir(test_dataset)
-        print(predictions)
-        cross.append(knn.cross_validation(predictions=predictions,test_labels=labels_test))
-        cross_ponderado.append(knn.cross_validation(predictions=predictions_ponderado,test_labels=labels_test))
+        #print(predictions)
+        cross.append(knn.evaluar_predicciones(predictions=predictions,test_labels=labels_test))
+        cross_ponderado.append(knn.evaluar_predicciones(predictions=predictions_ponderado,test_labels=labels_test))
+        #cross.append(knn.cross_validation(predictions=predictions,test_labels=labels_test))
+        #cross_ponderado.append(knn.cross_validation(predictions=predictions_ponderado,test_labels=labels_test))
+        knn.save_predictions(predictions=predictions, test_labels=labels_test, filename='pred_normal')
+        knn.save_predictions(predictions=predictions_ponderado, test_labels=labels_test, filename='pred_ponderado')
     print('CROSS',cross)
     print('CROSS PONDERADO',cross_ponderado)
 
@@ -78,6 +83,70 @@ to_csv([train_dataset, test_dataset, labels_train, labels_test],['training_datas
 
 to_csv([train_dataset,test_dataset],['training_dataset_scaled.csv','test_dataset_scaled.csv'])
 ejecutarKNN(train_dataset=train_dataset,labels_train=labels_train,test_dataset=test_dataset,labels_test=labels_test,)
+
+pred_normal = pd.read_csv('pred_normal.csv')
+pred_ponderado = pd.read_csv('pred_ponderado.csv')
+
+aciertos = pred_normal[pred_normal['Valor real'] == pred_normal['Predicción']]
+desaciertos = pred_normal[pred_normal["Valor real"] != pred_normal["Predicción"]]
+
+frecuencia_desaciertos = desaciertos.groupby(["Valor real", "Predicción"]).size()
+
+# Crear un gráfico de barras apiladas
+# frecuencia_desaciertos.unstack().plot(kind='bar', stacked=True, colormap='RdYlBu')
+
+# # Establecer etiquetas y título
+# plt.xlabel('Clase Real')
+# plt.ylabel('Cantidad de Desaciertos')
+# plt.title('Desaciertos entre Valor Actual y Predicción en KNN')
+
+# # Mostrar una leyenda
+# plt.legend(title='Valor Predicho')
+
+# # Mostrar el gráfico
+# plt.show()
+
+
+# aciertos_pond = pred_ponderado[pred_normal['Valor real'] == pred_ponderado['Predicción']]
+# desaciertos_pond = pred_ponderado[pred_normal["Valor real"] != pred_ponderado["Predicción"]]
+
+# # Contar la frecuencia de las clases reales y predichas en los desaciertos
+# frecuencia_desaciertos = desaciertos_pond.groupby(["Valor real", "Predicción"]).size()
+
+# # Crear un gráfico de barras apiladas
+# frecuencia_desaciertos.unstack().plot(kind='bar', stacked=True, colormap='RdYlBu')
+
+# # Establecer etiquetas y título
+# plt.xlabel('Clase Real')
+# plt.ylabel('Cantidad de Desaciertos')
+# plt.title('Desaciertos entre Valor Actual y Predicción en KNN PONDERADO')
+
+# # Mostrar una leyenda
+# plt.legend(title='Valor Predicho')
+
+# # Mostrar el gráfico
+# plt.show()
+
+
+# print(desaciertos_pond)
+# plt.figure(figsize=(8, 6))
+# plt.scatter(aciertos.index, aciertos["Valor real"], c='green', marker='o', label='Aciertos')
+# plt.scatter(desaciertos.index, desaciertos["Valor real"], c='red', marker='x', label='Desaciertos')
+
+# # Establecer etiquetas y título
+# plt.xlabel('Índice de muestra')
+# plt.ylabel('Valor')
+# plt.title('Aciertos y Desaciertos entre Valor Actual y Predicción')
+
+# # Mostrar una línea para marcar el eje x (índice de muestra)
+# plt.axhline(y=0, color='black', linewidth=1)
+
+# # Mostrar una leyenda
+# plt.legend()
+
+# # Mostrar el gráfico
+# plt.show()
+
 
 #ejecutarKNN_simple(train_dataset=train_dataset,labels_train=labels_train,test_dataset=test_dataset,labels_test=labels_test,)
 # precisiones = []

@@ -1,7 +1,8 @@
 # Se importan las librerias necesarias
+import pandas as pd
 import numpy as np
 from collections import Counter
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, precision_score
 #se usa para sacar el most_common al final
 
 class KNN:
@@ -74,16 +75,32 @@ class KNN:
         for i in range(self.k):
             if(k_nearest_labels[i] == 0 ): 
                 count_no += weighted_labels[i]
-        print('COUNTERS Ponderado',[count_yes, count_no])
+        #print('COUNTERS Ponderado',[count_yes, count_no])
         if (count_yes > count_no):
             return 1
         return 0
     def evaluar_predicciones(self,predictions, test_labels):
         # Calcula la precisión
         accuracy = accuracy_score(test_labels, predictions)
-        return accuracy
+        precision = precision_score(test_labels, predictions,pos_label=0)
+        return precision
     
     def cross_validation(self,predictions,test_labels):
         # Compara para cada prediccion si coincide con el valor de etiqueta en el dataset test_labels
         accuracy = np.sum(predictions == test_labels) / len(test_labels)
         return accuracy
+    def save_predictions(self,predictions,test_labels, filename):
+        pred = pd.DataFrame({'Valor real': test_labels, 'Predicción': predictions})
+        pred.to_csv( filename +'.csv')
+        
+        
+        
+#         plt.figure(figsize = (15,5))
+# plt.subplot(1,2,1)
+# plt.scatter(X_test[:,0], X_test[:,1], c=y_pred_5, marker= '*', s=100,edgecolors='black')
+# plt.title("Predicted values with k=5", fontsize=20)
+
+# plt.subplot(1,2,2)
+# plt.scatter(X_test[:,0], X_test[:,1], c=y_pred_1, marker= '*', s=100,edgecolors='black')
+# plt.title("Predicted values with k=1", fontsize=20)
+# plt.show()
