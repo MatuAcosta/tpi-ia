@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 def to_csv(datasets, names):
     i = 0
     for dataset in datasets:
-        dataset.to_csv(names[i])
+        dataset.to_csv('./csv/' + names[i])
         i += 1
 
 def div_dataset(dataset, drop_columns):
@@ -75,7 +75,7 @@ def ejecutarKNN_simple(train_dataset, labels_train):
         print('PREDICCION para k normal= ',k, prediction_normal)
 
 def graficarResultados(filename):
-    pred = pd.read_csv(filename + '.csv')
+    pred = pd.read_csv('./csv/' + filename + '.csv')
     desaciertos = pred[pred["Valor real"] != pred["Predicción"]]
     # Contar la frecuencia de las clases reales y predichas en los desaciertos
     frecuencia_desaciertos = desaciertos.groupby(["Valor real", "Predicción"]).size()
@@ -83,32 +83,36 @@ def graficarResultados(filename):
     frecuencia_desaciertos.unstack().plot(title='Desaciertos en predicciones por etiqueta', kind='bar', stacked=True, colormap='RdYlBu')
     plt.show()
 
+def ejecutarKNN_Lib(train_dataset, labels_train,test_dataset,labels_test):
+    precisiones = []
+    for i in range(1,11):
+        knn = KNeighborsClassifier(n_neighbors=i)
+        knn.fit(train_dataset, labels_train)
+        y_pred = knn.predict(test_dataset)
+        accuracy = accuracy_score(labels_test, y_pred)
+        precisiones.append(accuracy)
+    print('precisiones', precisiones)
 
 
-dataset = pd.read_csv('data_cardiovascular_risk.csv').dropna()
+dataset = pd.read_csv('./csv/data_cardiovascular_risk.csv').dropna()
 dataset['sex'] = dataset['sex'].replace({'M': 1, 'F': 0})
 dataset['is_smoking'] = dataset['is_smoking'].replace({'YES': 1, 'NO':0})
 train_dataset, test_dataset, labels_train, labels_test = div_dataset(dataset, ['id','TenYearCHD'])
 to_csv([train_dataset, test_dataset, labels_train, labels_test],['training_dataset.csv','test_dataset.csv','labels_train.csv','labels_test.csv'])
 
-#train_dataset = normalize_dataset(train_dataset)
-#test_dataset = normalize_dataset(test_dataset)
+train_dataset = normalize_dataset(train_dataset)
+test_dataset = normalize_dataset(test_dataset)
 
 to_csv([train_dataset,test_dataset],['training_dataset_scaled.csv','test_dataset_scaled.csv'])
-#ejecutarKNN(train_dataset=train_dataset,labels_train=labels_train,test_dataset=test_dataset,labels_test=labels_test,)
+ejecutarKNN(train_dataset=train_dataset,labels_train=labels_train,test_dataset=test_dataset,labels_test=labels_test,)
+#ejecutarKNN_simple(train_dataset=train_dataset,labels_train=labels_train)
+##ejecutarKNN_Lib(train_dataset=train_dataset,labels_train=labels_train,test_dataset=test_dataset,labels_test=labels_test,)
+
 #graficarResultados('pred_normal')
 #graficarResultados('pred_ponderado')
 
-ejecutarKNN_simple(train_dataset=train_dataset,labels_train=labels_train)
 
-# precisiones = []
-# for i in range(1,10):
-#     knn = KNeighborsClassifier(n_neighbors=i)
-#     knn.fit(train_dataset, labels_train)
-#     y_pred = knn.predict(test_dataset)
-#     accuracy = accuracy_score(labels_test, y_pred)
-#     precisiones.append(accuracy)
-# print('precisiones', precisiones)
+
 
   
  #RESULTADOS SIN ESCALAR   
