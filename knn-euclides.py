@@ -39,10 +39,13 @@ def ejecutarKNN(train_dataset, labels_train,test_dataset,labels_test):
         cross_ponderado.append(knn.cross_validation(predictions=predictions_ponderado,test_labels=labels_test))
         knn.save_predictions(predictions=predictions, test_labels=labels_test, filename='pred_normal')
         knn.save_predictions(predictions=predictions_ponderado, test_labels=labels_test, filename='pred_ponderado')
+    
+    k_optimo = knn.k_optimo(cross)
+    print('El k más optimo es:', str(k_optimo + 1))
     print('CROSS',cross)
     print('CROSS PONDERADO',cross_ponderado)
 
-def ejecutarKNN_simple(train_dataset, labels_train,test_dataset,labels_test):
+def ejecutarKNN_simple(train_dataset, labels_train):
      for k in range(5,6):
         knn = KNN(k)
         knn.fit(train_dataset,labels_train)
@@ -65,7 +68,7 @@ def ejecutarKNN_simple(train_dataset, labels_train,test_dataset,labels_test):
         }
         new_df = normalize_dataset( pd.DataFrame(new_data))
         new_df = pd.DataFrame(new_data)
-        print('NEW_DF',new_df)
+        #print('NEW_DF',new_df)
         prediction_normal = knn.predecir(new_df)
         prediction_ponderado = knn.predecir_ponderado(new_df)
         print('PREDICCION para kponderadoS= ',k, prediction_ponderado)
@@ -88,17 +91,16 @@ dataset['is_smoking'] = dataset['is_smoking'].replace({'YES': 1, 'NO':0})
 train_dataset, test_dataset, labels_train, labels_test = div_dataset(dataset, ['id','TenYearCHD'])
 to_csv([train_dataset, test_dataset, labels_train, labels_test],['training_dataset.csv','test_dataset.csv','labels_train.csv','labels_test.csv'])
 
-train_dataset = normalize_dataset(train_dataset)
-test_dataset = normalize_dataset(test_dataset)
+#train_dataset = normalize_dataset(train_dataset)
+#test_dataset = normalize_dataset(test_dataset)
 
 to_csv([train_dataset,test_dataset],['training_dataset_scaled.csv','test_dataset_scaled.csv'])
-ejecutarKNN(train_dataset=train_dataset,labels_train=labels_train,test_dataset=test_dataset,labels_test=labels_test,)
-graficarResultados('pred_normal')
-graficarResultados('pred_ponderado')
+#ejecutarKNN(train_dataset=train_dataset,labels_train=labels_train,test_dataset=test_dataset,labels_test=labels_test,)
+#graficarResultados('pred_normal')
+#graficarResultados('pred_ponderado')
 
+ejecutarKNN_simple(train_dataset=train_dataset,labels_train=labels_train)
 
-
-#ejecutarKNN_simple(train_dataset=train_dataset,labels_train=labels_train,test_dataset=test_dataset,labels_test=labels_test,)
 # precisiones = []
 # for i in range(1,10):
 #     knn = KNeighborsClassifier(n_neighbors=i)
