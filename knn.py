@@ -20,12 +20,6 @@ class KNN:
             return 9999999
         else:
             return distancia
-    def distancia_ponderada(self, punto1, punto2):
-        distancia = np.sqrt(np.sum((punto1 - punto2) ** 2))
-        if np.isnan(distancia):    # Si es nulo, ignorar con un valor alto (por ahora)
-            return 9999999
-        else:
-            return distancia
 
     def predecir(self, nuevo_registro):
         clase = [self._predecir(punto) for punto in nuevo_registro.values]
@@ -37,13 +31,8 @@ class KNN:
     # Calculamos distancias entre test_point y todos los ejemplos en el training set
     def _predecir(self, test_point):
         distancias = [self.distancia_euclidea(test_point, train_point) for train_point in self.atributos.values]
-        #print('Mostramos las primeras 10 distancias:')
-        #print(distancias[0:9])
-        # Ordenamos por distancia y devolver índices de los primeros k vecinos.
-        k_indices = np.argsort(distancias)[:self.k]
-        # Extraemos las clases o etiquetas de las k muestras de entrenamiento del vecino más cercano
-        k_nearest_labels = [self.clase.iloc[i] for i in k_indices]
-        #print((k_nearest_labels))
+        k_indices = np.argsort(distancias)[:self.k] # Ordenamos por distancia y devolver índices de los primeros k vecinos.
+        k_nearest_labels = [self.clase.iloc[i] for i in k_indices] # Extraemos las clases o etiquetas de las k muestras de entrenamiento del vecino más cercano
         count_yes = 0
         count_no = 0
         for i in range(self.k):
@@ -57,16 +46,11 @@ class KNN:
         return 0
     
     def _predecir_ponderado(self, test_point):
-        distancias = [self.distancia_ponderada(test_point, train_point) for train_point in self.atributos.values]
+        distancias = [self.distancia_euclidea(test_point, train_point) for train_point in self.atributos.values]
         k_indices = np.argsort(distancias)[:self.k]
-        #print('DISTANCIAS', k_indices)
         k_nearest_labels = [self.clase.iloc[i] for i in k_indices]
-        # for i in k_indices:
-        #     print('MAS CERCANOS',self.atributos.iloc[i])
-       #print('MAS CERCANO',self.atributos.iloc[k_indices[0]])
         # Calcular los pesos ponderados para las etiquetas (cuadrado del inverso de la distancia)
         weighted_labels = [1 / (distancias[i] ** 2) for i in k_indices]
-        #print('WEIGHTED', weighted_labels)
         count_yes = 0
         count_no = 0
         for i in range(self.k):
@@ -75,13 +59,12 @@ class KNN:
         for i in range(self.k):
             if(k_nearest_labels[i] == 0 ): 
                 count_no += weighted_labels[i]
-        #print('COUNTERS Ponderado',[count_yes, count_no])
         if (count_yes > count_no):
             return 1
         return 0
     def evaluar_predicciones(self,predictions, test_labels):
         # Calcula la precisión
-        accuracy = accuracy_score(test_labels, predictions)
+        #accuracy = accuracy_score(test_labels, predictions)
         precision = precision_score(test_labels, predictions,pos_label=0)
         return precision
     
@@ -89,18 +72,9 @@ class KNN:
         # Compara para cada prediccion si coincide con el valor de etiqueta en el dataset test_labels
         accuracy = np.sum(predictions == test_labels) / len(test_labels)
         return accuracy
+    
     def save_predictions(self,predictions,test_labels, filename):
         pred = pd.DataFrame({'Valor real': test_labels, 'Predicción': predictions})
         pred.to_csv( filename +'.csv')
         
         
-        
-#         plt.figure(figsize = (15,5))
-# plt.subplot(1,2,1)
-# plt.scatter(X_test[:,0], X_test[:,1], c=y_pred_5, marker= '*', s=100,edgecolors='black')
-# plt.title("Predicted values with k=5", fontsize=20)
-
-# plt.subplot(1,2,2)
-# plt.scatter(X_test[:,0], X_test[:,1], c=y_pred_1, marker= '*', s=100,edgecolors='black')
-# plt.title("Predicted values with k=1", fontsize=20)
-# plt.show()
